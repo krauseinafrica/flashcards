@@ -80,3 +80,33 @@ def study_page():
 
         elif st.session_state.study_mode == "Show Back Only":
             st.write(f"Back: {card['back']}")
+            if st.button("Next"):
+                st.session_state.current_card_index += 1
+
+        elif st.session_state.study_mode == "Random Front/Back":
+            if st.session_state.show_front:
+                st.write(f"Front: {card['front']}")
+                if st.button("Flip to Back"):
+                    st.session_state.show_front = False
+            else:
+                st.write(f"Back: {card['back']}")
+                if st.button("Flip to Front"):
+                    st.session_state.show_front = True
+
+            if st.button("Next Card"):
+                st.session_state.current_card_index += 1
+                st.session_state.show_front = True
+
+    else:
+        st.write("You have completed all the flashcards!")
+        if st.button("Start Over"):
+            reset_study_session()
+
+# Navigation between pages
+if "page" not in st.session_state:
+    st.session_state.page = "input"
+
+if st.session_state.page == "input":
+    input_page()
+elif st.session_state.page == "study":
+    study_page()

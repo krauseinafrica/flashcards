@@ -52,10 +52,16 @@ def input_page():
             else:
                 st.error("Both front and back fields must be filled.")
 
-    # Display existing flashcards for review
+    # Display existing flashcards for review and delete
     st.header("Your Flashcards")
     for idx, card in enumerate(st.session_state.flashcards):
-        st.write(f"Card {idx + 1}: Front - '{card['front']}', Back - '{card['back']}'")
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.write(f"Card {idx + 1}: Front - '{card['front']}', Back - '{card['back']}'")
+        with col2:
+            if st.button(f"Delete Card {idx + 1}", key=f"delete_{idx}"):
+                del st.session_state.flashcards[idx]
+                st.experimental_rerun()
 
     # Study Options and Start Studying
     if st.session_state.flashcards:

@@ -69,6 +69,10 @@ def input_page():
 def study_page():
     st.title("Flashcard Study Session")
 
+    if st.button("Back to Input Page"):
+        st.session_state.page = "input"
+        return
+
     if st.session_state.current_card_index < len(st.session_state.flashcards):
         card = st.session_state.flashcards[st.session_state.current_card_index]
 

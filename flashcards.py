@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import random
 
 # Store flashcards in session state
@@ -8,7 +9,24 @@ if "flashcards" not in st.session_state:
 # Flashcard Input UI
 st.title("Flashcard Study Tool")
 
-st.header("Create Flashcards")
+# Option to Upload CSV File
+st.header("Upload Flashcards from CSV")
+uploaded_file = st.file_uploader("Upload a CSV file with 'Front' and 'Back' columns", type="csv")
+if uploaded_file is not None:
+    try:
+        # Read CSV and add to flashcards list
+        df = pd.read_csv(uploaded_file)
+        if "Front" in df.columns and "Back" in df.columns:
+            for _, row in df.iterrows():
+                st.session_state.flashcards.append({"front": row["Front"], "back": row["Back"]})
+            st.success("Flashcards from CSV file added!")
+        else:
+            st.error("CSV file must contain 'Front' and 'Back' columns.")
+    except Exception as e:
+        st.error(f"An error occurred while reading the CSV file: {e}")
+
+# Option to Manually Add Flashcards
+st.header("Create Flashcards Manually")
 front = st.text_input("Front of Card")
 back = st.text_input("Back of Card")
 if st.button("Add Card"):
@@ -30,19 +48,4 @@ study_mode = st.selectbox("Select study mode:", ["Show Front Only", "Show Back O
 # Start Studying
 if st.button("Start Studying"):
     if not st.session_state.flashcards:
-        st.error("No flashcards available. Please add some flashcards first.")
-    else:
-        # Randomize flashcards
-        flashcards = st.session_state.flashcards.copy()
-        random.shuffle(flashcards)
-
-        st.header("Flashcards")
-        for card in flashcards:
-            if study_mode == "Show Front Only":
-                st.write(f"Front: {card['front']}")
-            elif study_mode == "Show Back Only":
-                st.write(f"Back: {card['back']}")
-            elif study_mode == "Random Front/Back":
-                side = random.choice(["front", "back"])
-                st.write(f"{'Front' if side == 'front' else 'Back'}: {card[side]}")
-
+        s

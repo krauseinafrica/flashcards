@@ -61,7 +61,8 @@ def input_page():
         with col2:
             if st.button(f"Delete Card {idx + 1}", key=f"delete_{idx}"):
                 del st.session_state.flashcards[idx]
-                st.experimental_rerun()
+                st.experimental_set_query_params()  # Force a rerun to refresh the flashcards list
+                return
 
     # Study Options and Start Studying
     if st.session_state.flashcards:

@@ -48,4 +48,18 @@ study_mode = st.selectbox("Select study mode:", ["Show Front Only", "Show Back O
 # Start Studying
 if st.button("Start Studying"):
     if not st.session_state.flashcards:
-        s
+        st.error("No flashcards available. Please add some flashcards first.")
+    else:
+        # Randomize flashcards
+        flashcards = st.session_state.flashcards.copy()
+        random.shuffle(flashcards)
+
+        st.header("Flashcards")
+        for card in flashcards:
+            if study_mode == "Show Front Only":
+                st.write(f"Front: {card['front']}")
+            elif study_mode == "Show Back Only":
+                st.write(f"Back: {card['back']}")
+            elif study_mode == "Random Front/Back":
+                side = random.choice(["front", "back"])
+                st.write(f"{'Front' if side == 'front' else 'Back'}: {card[side]}")

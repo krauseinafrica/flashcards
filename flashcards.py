@@ -9,12 +9,20 @@ if "current_card_index" not in st.session_state:
     st.session_state.current_card_index = 0
 if "show_front" not in st.session_state:
     st.session_state.show_front = True
+if "unknown_cards" not in st.session_state:
+    st.session_state.unknown_cards = []
+if "study_mode" not in st.session_state:
+    st.session_state.study_mode = None
+if "review_mode" not in st.session_state:
+    st.session_state.review_mode = False
 
 # Function to reset study session
 def reset_study_session():
     st.session_state.current_card_index = 0
     st.session_state.show_front = True
+    st.session_state.unknown_cards = []
     random.shuffle(st.session_state.flashcards)
+    st.session_state.review_mode = False
 
 # Page 1: Flashcard Input
 def input_page():
@@ -81,7 +89,11 @@ def study_page():
         return
 
     if st.session_state.current_card_index < len(st.session_state.flashcards):
-        card = st.session_state.flashcards[st.session_state.current_card_index]
+        # Handle normal or review mode
+        if not st.session_state.review_mode:
+            card = st.session_state.flashcards[st.session_state.current_card_index]
+        else:
+            card = st.session_state.unknown_cards[st.session_state.current_card_index]
 
         # CSS to style the flashcard as a 3x5 card
         card_style = """
@@ -110,14 +122,32 @@ def study_page():
                 st.session_state.show_front = False
         else:
             st.markdown(f"<div class='flashcard'>{card['back']}</div>", unsafe_allow_html=True)
-            if st.button("Next Card"):
-                st.session_state.current_card_index += 1
-                st.session_state.show_front = True
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("I Knew This"):
+                    st.session_state.current_card_index += 1
+                    st.session_state.show_front = True
+            with col2:
+                if st.button("I Didn't Know This"):
+                    if not st.session_state.review_mode:
+                        st.session_state.unknown_cards.append(card)
+                    st.session_state.current_card_index += 1
+                    st.session_state.show_front = True
 
     else:
-        st.write("You have completed all the flashcards!")
-        if st.button("Start Over"):
-            reset_study_session()
+        if not st.session_state.review_mode and st.session_state.unknown_cards:
+            st.write("You have completed the initial round of flashcards. Let's review the ones you didn't know.")
+            st.session_state.review_mode = True
+            st.session_state.current_card_index = 0
+            random.shuffle(st.session_state.unknown_cards)
+        elif st.session_state.review_mode:
+            st.write("You have completed the review session!")
+            if st.button("Start Over"):
+                reset_study_session()
+        else:
+            st.write("You have completed all the flashcards!")
+            if st.button("Start Over"):
+                reset_study_session()
 
 # Navigation between pages
 if "page" not in st.session_state:

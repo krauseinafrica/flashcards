@@ -72,27 +72,33 @@ def study_page():
     if st.session_state.current_card_index < len(st.session_state.flashcards):
         card = st.session_state.flashcards[st.session_state.current_card_index]
 
+        # CSS to style the flashcard as a 3x5 card
+        card_style = """
+        <style>
+            .flashcard {
+                width: 500px;
+                height: 300px;
+                border: 2px solid #000;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+                margin: 20px auto;
+                text-align: center;
+                font-size: 24px;
+                background-color: #f9f9f9;
+            }
+        </style>
+        """
+
+        st.markdown(card_style, unsafe_allow_html=True)
+
         # Determine which side to show
-        if st.session_state.study_mode == "Show Front Only":
-            st.write(f"Front: {card['front']}")
-            if st.button("Next"):
-                st.session_state.current_card_index += 1
-
-        elif st.session_state.study_mode == "Show Back Only":
-            st.write(f"Back: {card['back']}")
-            if st.button("Next"):
-                st.session_state.current_card_index += 1
-
-        elif st.session_state.study_mode == "Random Front/Back":
-            if st.session_state.show_front:
-                st.write(f"Front: {card['front']}")
-                if st.button("Flip to Back"):
-                    st.session_state.show_front = False
-            else:
-                st.write(f"Back: {card['back']}")
-                if st.button("Flip to Front"):
-                    st.session_state.show_front = True
-
+        if st.session_state.show_front:
+            st.markdown(f"<div class='flashcard'>{card['front']}</div>", unsafe_allow_html=True)
+            if st.button("Check Answer"):
+                st.session_state.show_front = False
+        else:
+            st.markdown(f"<div class='flashcard'>{card['back']}</div>", unsafe_allow_html=True)
             if st.button("Next Card"):
                 st.session_state.current_card_index += 1
                 st.session_state.show_front = True

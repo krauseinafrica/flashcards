@@ -140,6 +140,12 @@ def study_page():
             st.session_state.review_mode = True
             st.session_state.current_card_index = 0
             random.shuffle(st.session_state.unknown_cards)
+        elif st.session_state.review_mode and st.session_state.current_card_index < len(st.session_state.unknown_cards):
+            # Continue review session
+            card = st.session_state.unknown_cards[st.session_state.current_card_index]
+            st.markdown(f"<div class='flashcard'>{card['front']}</div>", unsafe_allow_html=True)
+            if st.button("Check Answer"):
+                st.session_state.show_front = False
         elif st.session_state.review_mode:
             st.write("You have completed the review session!")
             if st.button("Start Over"):

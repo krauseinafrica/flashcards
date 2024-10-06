@@ -69,8 +69,7 @@ def input_page():
         with col2:
             if st.button(f"Delete Card {idx + 1}", key=f"delete_{idx}"):
                 del st.session_state.flashcards[idx]
-                st.experimental_set_query_params()  # Force a rerun to refresh the flashcards list
-                return
+                st.experimental_rerun()  # Force a rerun to refresh the flashcards list
 
     # Study Options and Start Studying
     if st.session_state.flashcards:
@@ -88,9 +87,7 @@ def study_page():
         st.session_state.page = "input"
         return
 
-    if st.session_state.current_card_index < len(st.session_state.flashcards) or (
-        st.session_state.review_mode and st.session_state.current_card_index < len(st.session_state.unknown_cards)
-    ):
+    if st.session_state.current_card_index < len(st.session_state.flashcards):
         # Handle normal or review mode
         if not st.session_state.review_mode:
             card = st.session_state.flashcards[st.session_state.current_card_index]
@@ -127,10 +124,12 @@ def study_page():
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("I Knew This"):
+                    # Move to the next card
                     st.session_state.current_card_index += 1
                     st.session_state.show_front = True
             with col2:
                 if st.button("I Didn't Know This"):
+                    # Append card to unknown cards and move to the next card
                     if not st.session_state.review_mode:
                         st.session_state.unknown_cards.append(card)
                     st.session_state.current_card_index += 1
@@ -142,6 +141,12 @@ def study_page():
             st.session_state.review_mode = True
             st.session_state.current_card_index = 0
             random.shuffle(st.session_state.unknown_cards)
+        elif st.session_state.review_mode and st.session_state.current_card_index < len(st.session_state.unknown_cards):
+            # Continue review session
+            card = st.session_state.unknown_cards[st.session_state.current_card_index]
+            st.markdown(f"<div class='flashcard'>{card['front']}</div>", unsafe_allow_html=True)
+            if st.button("Check Answer"):
+                st.session_state.show_front = False
         elif st.session_state.review_mode:
             st.write("You have completed the review session!")
             if st.button("Start Over"):
